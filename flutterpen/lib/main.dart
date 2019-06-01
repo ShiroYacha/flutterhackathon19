@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutterpen/selector.dart';
 import 'drawers.dart';
 import 'snackbar.dart';
 import 'bottom_navbar.dart';
+import 'lib_dashboard.dart';
+import 'selector.dart';
+import 'config.dart';
 
 void main() => runApp(MyApp());
 
@@ -55,21 +59,50 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, String> _configs = {
     "drawer": DrawerFactory.initial,
     "snackbar": SnackbarFactory.initial,
-    "bottom_navbar": BottomNavbarFactory.initial
+    "bottom_navbar": BottomNavbarFactory.initial,
+    "selector": SelectorFactory.initial
   };
 
-  List<DrawerRoute> _routes = [
-    DrawerRoute(
-        "Home",
-        Container(
-          color: Colors.red,
-        )),
-    DrawerRoute(
-        "Drawers",
-        Container(
-          color: Colors.blue,
-        )),
-  ];
+  List<DrawerRoute> _routes;
+  int refresh = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _routes = getRoutes();
+  }
+
+  List<DrawerRoute> getRoutes() {
+    return [
+      DrawerRoute(
+          "Home",
+          Container(
+            color: Colors.white,
+          )),
+      DrawerRoute(
+          "Drawers",
+          LibraryDashboard([
+            SelectorRoute(DrawerFactory.initial, "Flutter drawer",
+                "https://cdn-images-1.medium.com/max/1200/1*EsZiL8weIycbTDMo2m49MA.png"),
+            SelectorRoute(
+                DrawerFactory.hidden_drawer_menu,
+                "Hidden drawer menu",
+                "https://github.com/RafaelBarbosatec/hidden_drawer_menu/blob/master/imgs/notice_expanded.png?raw=true"),
+            SelectorRoute(
+                DrawerFactory.flutter_inner_drawer,
+                "Flutter Inner drawer",
+                "https://github.com/Dn-a/flutter_inner_drawer/raw/master/example/pic.png?raw=true"),
+          ], _configs)),
+      DrawerRoute(
+          "Selectors",
+          LibraryDashboard([
+            SelectorRoute(SelectorFactory.initial, "Flutter grid view",
+                "https://i.stack.imgur.com/5eaSYm.png"),
+            SelectorRoute(SelectorFactory.carousel_slider, "Carousel slider",
+                "https://flutterawesome.com/content/images/2018/09/flutter_carousel_slider.jpg"),
+          ], _configs)),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
           try {
             final encryptedBarcode = await BarcodeScanner.scan();
             final parts = encryptedBarcode.split(";");
-            if (parts[0] == "drawer") {
-              setState(() {
-                _configs[parts[0]] = "temp";
-              });
-              setState(() {
-                _configs[parts[0]] = parts[1];
-              });
-            }
+            setState(() {
+              _configs[parts[0]] = parts[1];
+              _routes = getRoutes();
+            });
             _snackbarFactory.show(
                 _configs["snackbar"],
                 "Library switch on ${parts[0]}",

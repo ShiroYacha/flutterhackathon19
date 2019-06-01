@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
 class SnackbarFactory {
-  static const String initial = "intial";
+  static const String initial = "initial";
   static const String flushbar = "flushbar";
 
   void show(String library, String title, String message, BuildContext context,

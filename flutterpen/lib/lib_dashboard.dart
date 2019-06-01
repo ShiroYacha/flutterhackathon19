@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'selector.dart';
 
-class LibraryDashboard extends StatefulWidget {
-  LibraryDashboard({Key key}) : super(key: key);
+class LibraryDashboard extends StatelessWidget {
+  
+SelectorFactory _selectorFactory = SelectorFactory();
+  List<SelectorRoute> routes;
+  Map<String, String> configs;
 
-  _LibraryDashboardState createState() => _LibraryDashboardState();
-}
-
-class _LibraryDashboardState extends State<LibraryDashboard> {
+  LibraryDashboard(this.routes, this.configs);
   @override
   Widget build(BuildContext context) {
     return Container(
-       child: Container(),
+      padding: EdgeInsets.all(20),
+      child: _selectorFactory.createSelector(configs["selector"], routes),
     );
   }
 }

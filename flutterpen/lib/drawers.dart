@@ -5,6 +5,7 @@ import 'package:hidden_drawer_menu/menu/item_hidden_menu.dart';
 import 'package:hidden_drawer_menu/hidden_drawer/screen_hidden_drawer.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'bottom_navbar.dart';
+import 'config.dart';
 
 class DrawerRoute {
   String name;
@@ -96,6 +97,7 @@ class DrawerFactory {
                             onTap: () {
                               Navigator.pop(context);
                               Navigator.pushNamed(context, r.name);
+                              Config.currentRoute = r.name;
                             },
                           ),
                     )
@@ -128,6 +130,7 @@ class DrawerFactory {
                                     onTap: () {
                                       Navigator.pop(context);
                                       Navigator.pushNamed(context, r.name);
+                                      Config.currentRoute = r.name;
                                     },
                                   ),
                             )
