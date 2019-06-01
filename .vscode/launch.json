@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Dart",
-            "program": "bin/main.dart",
+            "program": "flutterpen/lib/main.dart",
             "request": "launch",
             "type": "dart"
         }
