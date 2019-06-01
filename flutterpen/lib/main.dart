@@ -46,11 +46,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
-  String drawerLib = DrawerFactory.flutter_inner_drawer;
-
   DrawerFactory _drawerFactory = DrawerFactory();
   SnackbarFactory _snackbarFactory = SnackbarFactory();
+
+  Map<String, String> _configs = {
+    "drawer": DrawerFactory.initial,
+    "snackbar": SnackbarFactory.initial
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return _drawerFactory.createDrawerApp(drawerLib, [
+    return _drawerFactory.createDrawerApp(_configs["drawer"], [
       // return _drawerFactory.createDrawerApp("flutter_inner_drawer", [
       DrawerRoute(),
       DrawerRoute(),
       DrawerRoute(),
-    ], () async {
+    ], context, () async {
       try {
         final encryptedBarcode = await BarcodeScanner.scan();
-        setState((){
-          drawerLib = encryptedBarcode;
+        final parts = encryptedBarcode.split(";");
+        setState(() {
+          _configs[parts[0]] = parts[1];
         });
-        _snackbarFactory.show("flushbar", "Library switch", "Switched drawer to $encryptedBarcode", context, seconds: 5);
+        _snackbarFactory.show(_configs["snackbar"], "Library switch on ${parts[0]}",
+            "Switched to ${parts[1]}", context,
+            seconds: 5);
       } catch (e) {
         print(e);
       }

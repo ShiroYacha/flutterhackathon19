@@ -8,19 +8,21 @@ import 'package:flutter_icons/flutter_icons.dart';
 class DrawerRoute {}
 
 class DrawerFactory {
-  static const String title = "FlutterPen";
+  static const String initial = "initial";
   static const String hidden_drawer_menu = "hidden_drawer_menu";
   static const String flutter_inner_drawer = "flutter_inner_drawer";
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey =
       GlobalKey<InnerDrawerState>();
 
-  Widget createDrawerApp(String library, List<DrawerRoute> routes, Function qrCallback) {
+  Widget createDrawerApp(String library, List<DrawerRoute> routes, BuildContext context, Function qrCallback) {
     switch (library) {
+      case "initial":
+        return createFlutterDrawerMenuApp(routes, context, qrCallback);
       case "hidden_drawer_menu":
-        return createHiddenDrawerMenuApp(routes, qrCallback);
+        return createHiddenDrawerMenuApp(routes, context, qrCallback);
       case "flutter_inner_drawer":
-        return createInnerDrawerMenuApp(routes, qrCallback);
+        return createInnerDrawerMenuApp(routes, context, qrCallback);
       default:
     }
     return Container();
@@ -29,15 +31,59 @@ class DrawerFactory {
   Widget createQrScanActionButton(Function callback) {
     return InkWell(
       onTap: callback,
-      child: Icon(
+      child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Icon(
         MaterialCommunityIcons.getIconData("qrcode-scan"),
         size: 25,
         color: Colors.white,
+      ),),
+    );
+  }
+
+  Widget createFlutterDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context,  Function qrCallback) {
+    return Scaffold(
+      appBar: AppBar(title: Text("title"), actions: <Widget>[
+        createQrScanActionButton(qrCallback)
+      ],),
+      body: Center(child: Text('My Page!')),
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the Drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Drawer Header'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              title: Text('Item 1'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget createInnerDrawerMenuApp(List<DrawerRoute> routes, Function qrCallback) {
+  Widget createInnerDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context, Function qrCallback) {
     return InnerDrawer(
         key: _innerDrawerKey,
         position: InnerDrawerPosition.start, // required
@@ -54,7 +100,7 @@ class DrawerFactory {
         // Note: use "automaticallyImplyLeading: false" if you do not personalize "leading" of Bar
         scaffold: Scaffold(
             appBar: AppBar(
-          title: Text(title),
+          title: Text("title"),
           leading: InkWell(onTap: (){
             _innerDrawerKey.currentState.open();
           },child: Icon(Icons.menu),),
@@ -63,11 +109,11 @@ class DrawerFactory {
         )));
   }
 
-  Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes, Function qrCallback) {
+  Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context,  Function qrCallback) {
     var itens = List<ScreenHiddenDrawer>();
     itens.add(new ScreenHiddenDrawer(
         new ItemHiddenMenu(
-          name: title,
+          name: "title",
           colorLineSelected: Colors.teal,
           baseStyle:
               TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 25.0),
@@ -76,7 +122,7 @@ class DrawerFactory {
         Container(
           color: Colors.teal,
           child: Center(
-            child: Text(title,
+            child: Text("title",
                 style: TextStyle(color: Colors.white, fontSize: 30.0)),
           ),
         )));
