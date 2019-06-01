@@ -3,6 +3,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'drawers.dart';
 import 'snackbar.dart';
+import 'bottom_navbar.dart';
 
 void main() => runApp(MyApp());
 
@@ -46,12 +47,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   DrawerFactory _drawerFactory = DrawerFactory();
   SnackbarFactory _snackbarFactory = SnackbarFactory();
 
   Map<String, String> _configs = {
     "drawer": DrawerFactory.initial,
-    "snackbar": SnackbarFactory.initial
+    "snackbar": SnackbarFactory.initial,
+    "bottom_navbar": BottomNavbarFactory.initial
   };
 
   @override
@@ -62,24 +66,30 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return _drawerFactory.createDrawerApp(_configs["drawer"], [
-      // return _drawerFactory.createDrawerApp("flutter_inner_drawer", [
-      DrawerRoute(),
-      DrawerRoute(),
-      DrawerRoute(),
-    ], context, () async {
+    return Scaffold(
+        key: _scaffoldKey,
+        body: _drawerFactory.createDrawerApp(
+            _configs["drawer"],
+            [
+              // return _drawerFactory.createDrawerApp("flutter_inner_drawer", [
+              DrawerRoute(),
+              DrawerRoute(),
+              DrawerRoute(),
+            ],
+            context,
+            _configs, () async {
       try {
         final encryptedBarcode = await BarcodeScanner.scan();
         final parts = encryptedBarcode.split(";");
         setState(() {
           _configs[parts[0]] = parts[1];
         });
-        _snackbarFactory.show(_configs["snackbar"], "Library switch on ${parts[0]}",
-            "Switched to ${parts[1]}", context,
+        _snackbarFactory.show(_configs["snackbar"],
+            "Library switch on ${parts[0]}", "Switched to ${parts[1]}", context, _scaffoldKey,
             seconds: 5);
       } catch (e) {
         print(e);
       }
-    });
+    }));
   }
 }

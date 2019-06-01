@@ -4,6 +4,7 @@ import 'package:hidden_drawer_menu/hidden_drawer/hidden_drawer_menu.dart';
 import 'package:hidden_drawer_menu/menu/item_hidden_menu.dart';
 import 'package:hidden_drawer_menu/hidden_drawer/screen_hidden_drawer.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'bottom_navbar.dart';
 
 class DrawerRoute {}
 
@@ -11,18 +12,21 @@ class DrawerFactory {
   static const String initial = "initial";
   static const String hidden_drawer_menu = "hidden_drawer_menu";
   static const String flutter_inner_drawer = "flutter_inner_drawer";
+  BottomNavbarFactory _bottomNavbarFactory = BottomNavbarFactory();
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey =
       GlobalKey<InnerDrawerState>();
 
-  Widget createDrawerApp(String library, List<DrawerRoute> routes, BuildContext context, Function qrCallback) {
+  Widget createDrawerApp(String library, List<DrawerRoute> routes,
+      BuildContext context, Map<String, String> _configs, Function qrCallback) {
     switch (library) {
       case "initial":
-        return createFlutterDrawerMenuApp(routes, context, qrCallback);
+        return createFlutterDrawerMenuApp(
+            routes, context, _configs, qrCallback);
       case "hidden_drawer_menu":
-        return createHiddenDrawerMenuApp(routes, context, qrCallback);
+        return createHiddenDrawerMenuApp(routes, context, _configs, qrCallback);
       case "flutter_inner_drawer":
-        return createInnerDrawerMenuApp(routes, context, qrCallback);
+        return createInnerDrawerMenuApp(routes, context, _configs, qrCallback);
       default:
     }
     return Container();
@@ -31,20 +35,27 @@ class DrawerFactory {
   Widget createQrScanActionButton(Function callback) {
     return InkWell(
       onTap: callback,
-      child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Icon(
-        MaterialCommunityIcons.getIconData("qrcode-scan"),
-        size: 25,
-        color: Colors.white,
-      ),),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Icon(
+          MaterialCommunityIcons.getIconData("qrcode-scan"),
+          size: 25,
+          color: Colors.white,
+        ),
+      ),
     );
   }
 
-  Widget createFlutterDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context,  Function qrCallback) {
+  Widget createFlutterDrawerMenuApp(List<DrawerRoute> routes,
+      BuildContext context, Map<String, String> _configs, Function qrCallback) {
     return Scaffold(
-      appBar: AppBar(title: Text("title"), actions: <Widget>[
-        createQrScanActionButton(qrCallback)
-      ],),
+      appBar: AppBar(
+        title: Text("title"),
+        actions: <Widget>[createQrScanActionButton(qrCallback)],
+      ),
       body: Center(child: Text('My Page!')),
+      bottomNavigationBar:
+          _bottomNavbarFactory.createBottomNavbar(_configs["bottom_navbar"]),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
         // through the options in the Drawer if there isn't enough vertical
@@ -83,7 +94,8 @@ class DrawerFactory {
     );
   }
 
-  Widget createInnerDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context, Function qrCallback) {
+  Widget createInnerDrawerMenuApp(List<DrawerRoute> routes,
+      BuildContext context, Map<String, String> _configs, Function qrCallback) {
     return InnerDrawer(
         key: _innerDrawerKey,
         position: InnerDrawerPosition.start, // required
@@ -93,23 +105,31 @@ class DrawerFactory {
         colorTransition: Colors.blue, // default Color.black54
         animationType: InnerDrawerAnimation.linear, // default static
         innerDrawerCallback: (a) => print(a), // return bool
-        child: Material(child: Container(color: Colors.blue, child: ListView(children: <Widget>[
-
-        ],))),
-        //  A Scaffold is generally used but you are free to use other widgets
-        // Note: use "automaticallyImplyLeading: false" if you do not personalize "leading" of Bar
+        child: Material(
+            child: Container(
+                color: Colors.blue,
+                child: ListView(
+                  children: <Widget>[],
+                ))),
         scaffold: Scaffold(
-            appBar: AppBar(
-          title: Text("title"),
-          leading: InkWell(onTap: (){
-            _innerDrawerKey.currentState.open();
-          },child: Icon(Icons.menu),),
-          automaticallyImplyLeading: true,
-          actions: <Widget>[createQrScanActionButton(qrCallback)],
-        )));
+          appBar: AppBar(
+            title: Text("title"),
+            leading: InkWell(
+              onTap: () {
+                _innerDrawerKey.currentState.open();
+              },
+              child: Icon(Icons.menu),
+            ),
+            automaticallyImplyLeading: true,
+            actions: <Widget>[createQrScanActionButton(qrCallback)],
+          ),
+          bottomNavigationBar: _bottomNavbarFactory
+              .createBottomNavbar(_configs["bottom_navbar"]),
+        ));
   }
 
-  Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes,  BuildContext context,  Function qrCallback) {
+  Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes,
+      BuildContext context, Map<String, String> _configs, Function qrCallback) {
     var itens = List<ScreenHiddenDrawer>();
     itens.add(new ScreenHiddenDrawer(
         new ItemHiddenMenu(
@@ -119,12 +139,18 @@ class DrawerFactory {
               TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 25.0),
           selectedStyle: TextStyle(color: Colors.teal),
         ),
-        Container(
-          color: Colors.teal,
-          child: Center(
-            child: Text("title",
-                style: TextStyle(color: Colors.white, fontSize: 30.0)),
+        Scaffold(
+          body: Container(
+            color: Colors.teal,
+            child: Center(
+              child: Text(
+                "title",
+                style: TextStyle(color: Colors.white, fontSize: 30.0),
+              ),
+            ),
           ),
+          bottomNavigationBar: _bottomNavbarFactory
+              .createBottomNavbar(_configs["bottom_navbar"]),
         )));
 
     itens.add(new ScreenHiddenDrawer(
@@ -135,14 +161,18 @@ class DrawerFactory {
               TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 25.0),
           selectedStyle: TextStyle(color: Colors.orange),
         ),
-        Container(
-          color: Colors.orange,
-          child: Center(
-            child: Text(
-              "Screen 2",
-              style: TextStyle(color: Colors.white, fontSize: 30.0),
+        Scaffold(
+          body: Container(
+            color: Colors.orange,
+            child: Center(
+              child: Text(
+                "Screen 2",
+                style: TextStyle(color: Colors.white, fontSize: 30.0),
+              ),
             ),
           ),
+          bottomNavigationBar: _bottomNavbarFactory
+              .createBottomNavbar(_configs["bottom_navbar"]),
         )));
     return HiddenDrawerMenu(
       initPositionSelected: 0,
