@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:barcode_scan/barcode_scan.dart';
 import 'drawers.dart';
+import 'snackbar.dart';
 
 void main() => runApp(MyApp());
 
@@ -44,8 +46,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DrawerFactory _drawerFactory = DrawerFactory();
+  
   String drawerLib = DrawerFactory.flutter_inner_drawer;
+
+  DrawerFactory _drawerFactory = DrawerFactory();
+  SnackbarFactory _snackbarFactory = SnackbarFactory();
 
   @override
   Widget build(BuildContext context) {
@@ -60,12 +65,16 @@ class _MyHomePageState extends State<MyHomePage> {
       DrawerRoute(),
       DrawerRoute(),
       DrawerRoute(),
-    ], () {
-      setState(() {
-        drawerLib = drawerLib == DrawerFactory.flutter_inner_drawer
-            ? DrawerFactory.hidden_drawer_menu
-            : DrawerFactory.flutter_inner_drawer;
-      });
+    ], () async {
+      try {
+        final encryptedBarcode = await BarcodeScanner.scan();
+        setState((){
+          drawerLib = encryptedBarcode;
+        });
+        _snackbarFactory.show("flushbar", "Library switch", "Switched drawer to $encryptedBarcode", context, seconds: 5);
+      } catch (e) {
+        print(e);
+      }
     });
   }
 }
