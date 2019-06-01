@@ -109,6 +109,7 @@ class DrawerFactory {
 
   Widget createInnerDrawerMenuApp(String name, List<DrawerRoute> routes,
       BuildContext context, Map<String, String> _configs, Function qrCallback) {
+    final body = routes.singleWhere((r) => r.name == name).body;
     return InnerDrawer(
         key: _innerDrawerKey,
         position: InnerDrawerPosition.start, // required
@@ -138,7 +139,7 @@ class DrawerFactory {
                       )))),
         scaffold: Scaffold(
             appBar: AppBar(
-          title: Text("title"),
+          title: Text(name),
           leading: InkWell(
             onTap: () {
               _innerDrawerKey.currentState.open();
@@ -147,7 +148,7 @@ class DrawerFactory {
           ),
           automaticallyImplyLeading: true,
           actions: <Widget>[createQrScanActionButton(qrCallback)],
-        )));
+        ), body: body));
   }
 
   Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes,
