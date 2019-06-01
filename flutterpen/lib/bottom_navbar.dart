@@ -3,6 +3,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 
 class BottomNavbarFactory {
   static const String initial = "initial";
+  static const String bottom_navy_bar = "bottom_navy_bar";
 
   Widget createBottomNavbar(
     String library,

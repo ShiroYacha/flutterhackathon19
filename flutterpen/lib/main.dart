@@ -58,6 +58,19 @@ class _MyHomePageState extends State<MyHomePage> {
     "bottom_navbar": BottomNavbarFactory.initial
   };
 
+  List<DrawerRoute> _routes = [
+    DrawerRoute(
+        "Home",
+        Container(
+          color: Colors.red,
+        )),
+    DrawerRoute(
+        "Drawers",
+        Container(
+          color: Colors.blue,
+        )),
+  ];
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -69,27 +82,28 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         key: _scaffoldKey,
         body: _drawerFactory.createDrawerApp(
-            _configs["drawer"],
-            [
-              // return _drawerFactory.createDrawerApp("flutter_inner_drawer", [
-              DrawerRoute(),
-              DrawerRoute(),
-              DrawerRoute(),
-            ],
-            context,
-            _configs, () async {
-      try {
-        final encryptedBarcode = await BarcodeScanner.scan();
-        final parts = encryptedBarcode.split(";");
-        setState(() {
-          _configs[parts[0]] = parts[1];
-        });
-        _snackbarFactory.show(_configs["snackbar"],
-            "Library switch on ${parts[0]}", "Switched to ${parts[1]}", context, _scaffoldKey,
-            seconds: 5);
-      } catch (e) {
-        print(e);
-      }
-    }));
+            _configs["drawer"], _routes, context, _configs, () async {
+          try {
+            final encryptedBarcode = await BarcodeScanner.scan();
+            final parts = encryptedBarcode.split(";");
+            if (parts[0] == "drawer") {
+              setState(() {
+                _configs[parts[0]] = "temp";
+              });
+              setState(() {
+                _configs[parts[0]] = parts[1];
+              });
+            }
+            _snackbarFactory.show(
+                _configs["snackbar"],
+                "Library switch on ${parts[0]}",
+                "Switched to ${parts[1]}",
+                context,
+                _scaffoldKey,
+                seconds: 5);
+          } catch (e) {
+            print(e);
+          }
+        }));
   }
 }

@@ -6,7 +6,11 @@ import 'package:hidden_drawer_menu/hidden_drawer/screen_hidden_drawer.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'bottom_navbar.dart';
 
-class DrawerRoute {}
+class DrawerRoute {
+  String name;
+  Widget body;
+  DrawerRoute(this.name, this.body);
+}
 
 class DrawerFactory {
   static const String initial = "initial";
@@ -20,16 +24,30 @@ class DrawerFactory {
   Widget createDrawerApp(String library, List<DrawerRoute> routes,
       BuildContext context, Map<String, String> _configs, Function qrCallback) {
     switch (library) {
-      case "initial":
-        return createFlutterDrawerMenuApp(
-            routes, context, _configs, qrCallback);
       case "hidden_drawer_menu":
         return createHiddenDrawerMenuApp(routes, context, _configs, qrCallback);
       case "flutter_inner_drawer":
-        return createInnerDrawerMenuApp(routes, context, _configs, qrCallback);
+        return MaterialApp(
+            initialRoute: "${routes[0].name}",
+            onGenerateRoute: (RouteSettings settings) {
+              return MaterialPageRoute(
+                  builder: (context) => createInnerDrawerMenuApp(
+                      settings.name, routes, context, _configs, qrCallback));
+            },
+            home: createInnerDrawerMenuApp(
+                routes[0].name, routes, context, _configs, qrCallback));
+      case "initial":
       default:
+        return MaterialApp(
+            initialRoute: "${routes[0].name}",
+            onGenerateRoute: (RouteSettings settings) {
+              return MaterialPageRoute(
+                  builder: (context) => createFlutterDrawerMenuApp(
+                      settings.name, routes, context, _configs, qrCallback));
+            },
+            home: createFlutterDrawerMenuApp(
+                routes[0].name, routes, context, _configs, qrCallback));
     }
-    return Container();
   }
 
   Widget createQrScanActionButton(Function callback) {
@@ -46,55 +64,48 @@ class DrawerFactory {
     );
   }
 
-  Widget createFlutterDrawerMenuApp(List<DrawerRoute> routes,
+  Widget createDrawerHeader() => DrawerHeader(
+        padding: EdgeInsets.only(top: 60, left: 20),
+        child: Text(
+          'FlutterPen',
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w200, fontSize: 30),
+        ),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+        ),
+      );
+
+  Widget createFlutterDrawerMenuApp(String name, List<DrawerRoute> routes,
       BuildContext context, Map<String, String> _configs, Function qrCallback) {
+    final body = routes.singleWhere((r) => r.name == name).body;
     return Scaffold(
       appBar: AppBar(
-        title: Text("title"),
+        title: Text(name),
         actions: <Widget>[createQrScanActionButton(qrCallback)],
       ),
-      body: Center(child: Text('My Page!')),
-      bottomNavigationBar:
-          _bottomNavbarFactory.createBottomNavbar(_configs["bottom_navbar"]),
+      body: body,
       drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the Drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Drawer Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+            padding: EdgeInsets.zero,
+            children: [createDrawerHeader()]..addAll(
+                routes
+                    .map(
+                      (r) => ListTile(
+                            title: Text(r.name),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, r.name);
+                            },
+                          ),
+                    )
+                    .toList(),
+              )),
       ),
     );
   }
 
-  Widget createInnerDrawerMenuApp(List<DrawerRoute> routes,
+  Widget createInnerDrawerMenuApp(String name, List<DrawerRoute> routes,
       BuildContext context, Map<String, String> _configs, Function qrCallback) {
     return InnerDrawer(
         key: _innerDrawerKey,
@@ -107,77 +118,52 @@ class DrawerFactory {
         innerDrawerCallback: (a) => print(a), // return bool
         child: Material(
             child: Container(
-                color: Colors.blue,
+                color: Colors.white24,
                 child: ListView(
-                  children: <Widget>[],
-                ))),
+                    children: [createDrawerHeader()]..addAll(
+                        routes
+                            .map(
+                              (r) => ListTile(
+                                    title: Text(r.name),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(context, r.name);
+                                    },
+                                  ),
+                            )
+                            .toList(),
+                      )))),
         scaffold: Scaffold(
-          appBar: AppBar(
-            title: Text("title"),
-            leading: InkWell(
-              onTap: () {
-                _innerDrawerKey.currentState.open();
-              },
-              child: Icon(Icons.menu),
-            ),
-            automaticallyImplyLeading: true,
-            actions: <Widget>[createQrScanActionButton(qrCallback)],
+            appBar: AppBar(
+          title: Text("title"),
+          leading: InkWell(
+            onTap: () {
+              _innerDrawerKey.currentState.open();
+            },
+            child: Icon(Icons.menu),
           ),
-          bottomNavigationBar: _bottomNavbarFactory
-              .createBottomNavbar(_configs["bottom_navbar"]),
-        ));
+          automaticallyImplyLeading: true,
+          actions: <Widget>[createQrScanActionButton(qrCallback)],
+        )));
   }
 
   Widget createHiddenDrawerMenuApp(List<DrawerRoute> routes,
       BuildContext context, Map<String, String> _configs, Function qrCallback) {
-    var itens = List<ScreenHiddenDrawer>();
-    itens.add(new ScreenHiddenDrawer(
+    var items = routes.map((r) => ScreenHiddenDrawer(
         new ItemHiddenMenu(
-          name: "title",
-          colorLineSelected: Colors.teal,
+          name: r.name,
+          colorLineSelected: Colors.black,
           baseStyle:
-              TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 25.0),
-          selectedStyle: TextStyle(color: Colors.teal),
+              TextStyle(color: Colors.black.withOpacity(0.5), fontSize: 25.0),
+          selectedStyle: TextStyle(color: Colors.black),
         ),
         Scaffold(
-          body: Container(
-            color: Colors.teal,
-            child: Center(
-              child: Text(
-                "title",
-                style: TextStyle(color: Colors.white, fontSize: 30.0),
-              ),
-            ),
-          ),
-          bottomNavigationBar: _bottomNavbarFactory
-              .createBottomNavbar(_configs["bottom_navbar"]),
-        )));
-
-    itens.add(new ScreenHiddenDrawer(
-        new ItemHiddenMenu(
-          name: "Screen 2",
-          colorLineSelected: Colors.orange,
-          baseStyle:
-              TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 25.0),
-          selectedStyle: TextStyle(color: Colors.orange),
-        ),
-        Scaffold(
-          body: Container(
-            color: Colors.orange,
-            child: Center(
-              child: Text(
-                "Screen 2",
-                style: TextStyle(color: Colors.white, fontSize: 30.0),
-              ),
-            ),
-          ),
-          bottomNavigationBar: _bottomNavbarFactory
-              .createBottomNavbar(_configs["bottom_navbar"]),
-        )));
+          body: r.body,
+        ))).toList();
     return HiddenDrawerMenu(
       initPositionSelected: 0,
-      screens: itens,
-      backgroundColorMenu: Colors.cyan,
+      screens: items,
+      backgroundColorMenu: Colors.white,
       actionsAppBar: <Widget>[createQrScanActionButton(qrCallback)],
       //    slidePercent: 80.0,
       //    verticalScalePercent: 80.0,
