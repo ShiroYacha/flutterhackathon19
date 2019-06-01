@@ -75,31 +75,47 @@ class _MyHomePageState extends State<MyHomePage> {
   List<DrawerRoute> getRoutes() {
     return [
       DrawerRoute(
-          "Home",
-          Container(
-            color: Colors.white,
-          )),
-      DrawerRoute(
           "Drawers",
           LibraryDashboard([
             SelectorRoute(DrawerFactory.initial, "Flutter drawer",
-                "https://cdn-images-1.medium.com/max/1200/1*EsZiL8weIycbTDMo2m49MA.png"),
+                "https://cdn-images-1.medium.com/max/1200/1*EsZiL8weIycbTDMo2m49MA.png", (){
+                  setState(() {
+                    _configs["Drawers"] = DrawerFactory.initial;
+                  });
+                }),
             SelectorRoute(
                 DrawerFactory.hidden_drawer_menu,
                 "Hidden drawer menu",
-                "https://github.com/RafaelBarbosatec/hidden_drawer_menu/blob/master/imgs/notice_expanded.png?raw=true"),
+                "https://github.com/RafaelBarbosatec/hidden_drawer_menu/blob/master/imgs/notice_expanded.png?raw=true",
+                (){
+                  setState(() {
+                    _configs["Drawers"] = DrawerFactory.hidden_drawer_menu;
+                  });
+                }),
             SelectorRoute(
                 DrawerFactory.flutter_inner_drawer,
                 "Flutter Inner drawer",
-                "https://github.com/Dn-a/flutter_inner_drawer/raw/master/example/pic.png?raw=true"),
+                "https://github.com/Dn-a/flutter_inner_drawer/raw/master/example/pic.png?raw=true", (){
+                  setState(() {
+                    _configs["Drawers"] = DrawerFactory.flutter_inner_drawer;
+                  });
+                }),
           ], _configs)),
       DrawerRoute(
           "Selectors",
           LibraryDashboard([
             SelectorRoute(SelectorFactory.initial, "Flutter grid view",
-                "https://i.stack.imgur.com/5eaSYm.png"),
+                "https://i.stack.imgur.com/5eaSYm.png", (){
+                  setState(() {
+                    _configs["Selectors"] = SelectorFactory.initial;
+                  });
+                }),
             SelectorRoute(SelectorFactory.carousel_slider, "Carousel slider",
-                "https://flutterawesome.com/content/images/2018/09/flutter_carousel_slider.jpg"),
+                "https://flutterawesome.com/content/images/2018/09/flutter_carousel_slider.jpg", (){
+                  setState(() {
+                    _configs["Selectors"] = SelectorFactory.carousel_slider;
+                  });
+                }),
           ], _configs)),
     ];
   }

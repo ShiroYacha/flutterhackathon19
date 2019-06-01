@@ -6,7 +6,8 @@ class SelectorRoute {
   String name;
   String displayName;
   String image;
-  SelectorRoute(this.name, this.displayName, this.image);
+  Function callback;
+  SelectorRoute(this.name, this.displayName, this.image, this.callback);
 }
 
 class SelectorFactory {
@@ -22,8 +23,8 @@ class SelectorFactory {
     }
   }
 
-  Card _createCard(SelectorRoute r) {
-    return Card(
+  Widget _createCard(SelectorRoute r) {
+    return InkWell(onTap: r.callback, child: Card(
         child: Stack(fit: StackFit.expand, children: [
       new ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -47,7 +48,7 @@ class SelectorFactory {
                   fontWeight: FontWeight.w200),
             )),
       )
-    ]));
+    ])),);
   }
 
   Widget createCarouselSliderSelector(List<SelectorRoute> routes) {
